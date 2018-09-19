@@ -1,19 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="UTF-8">
-	<title>Smooth</title>
-</head>
-<body>
 
-<canvas id='lab02' height='500' width='1000' style='border-width: 3px'> </canvas>
-<canvas id='lab02Smooth' height='500' width='1000' style='border-width: 3px'> </canvas>
+<HTML>
+<BODY>
+
+<canvas id='lab02' height='500' width='1000' style='border-width: 3px' />
+<canvas id='lab02Smooth' height='500' width='1000' style='border-width: 3px' />
 <script>
 var buffer =[];
 var img = new Image();
-img.src = 'https://github.com/VladislavMashkov/VladislavMashkov.github.io/blob/master/lab02/img.jpg';
+img.src = 'img.jpg';
 img.onload = function() {
-  function draw(img) {
+  draw(this);
+};
+
+function draw(img) {
 	var canvas = document.getElementById('lab02');
     var ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
@@ -66,10 +65,7 @@ img.onload = function() {
 	}
 	ctx.putImageData(imageDataSmooth, 600, 0);
 }
-};
-
 	
 </script> 
-
-</body>
-</html>
+</BODY> 
+</HTML>
