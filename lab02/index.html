@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Smooth</title>
+</head>
+<body>
+
+<canvas id='lab02' height='500' width='1000' style='border-width: 3px'> </canvas>
+<canvas id='lab02Smooth' height='500' width='1000' style='border-width: 3px'> </canvas>
+<script>
+var buffer =[];
+var img = new Image();
+img.src = 'img.jpg';
+img.onload = function() {
+  function draw(img) {
+	var canvas = document.getElementById('lab02');
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    img.style.display = 'none';
+	
+    var imageData, imageDataSmooth;
+    var data, dataSmooth; 
+	var tmpRed, tmpGreen, tmpBlue;
+	
+    var smooth = function() {
+		for(var j = 0; j < img.height;) {
+			for(var i = 0; i < img.width;) {
+				if((j == 0) || (j == img.height) || (i == 0) || (i == img.width)){
+					imageData = ctx.getImageData(i, j, 3, 3);
+					data = imageData.data;
+					tmpRed = data[0];
+					tmpGreen = data[1];
+					tmpBlue = data[2];
+					buffer.push(tmpRed);
+					buffer.push(tmpGreen);
+					buffer.push(tmpBlue);
+					buffer.push(255);
+				}
+				else {
+					imageData = ctx.getImageData(i, j, 3, 3);
+					data = imageData.data;
+					tmpRed = Math.floor((data[0] + data[4] + data[8] + data[12] + data[16] + data[20] + data[24] + data[28] + data [32]) / 9);
+					tmpGreen = Math.floor((data[1] + data[5] + data[9] + data[13] + data[17] + data[21] + data[25] + data[29] + data [33]) / 9);
+					tmpBlue = Math.floor((data[2] + data[6] + data[10] + data[14] + data[18] + data[22] + data[26] + data[30] + data [34]) / 9);
+					buffer.push(tmpRed);
+					buffer.push(tmpGreen);
+					buffer.push(tmpBlue);
+					buffer.push(255);
+				}
+				i += 1;
+			}
+			j += 1;
+		}
+    };
+	smooth();
+	
+	var canvasSmooth = document.getElementById('lab02Smooth');
+	var ctxs = canvasSmooth.getContext('2d');
+	
+	imageDataSmooth = ctxs.getImageData(500, 0, img.width, img.height);
+	dataSmooth = imageDataSmooth.data;
+	
+	for(k = 0; k < dataSmooth.length; k++) {
+		dataSmooth[k] = buffer[k];
+	}
+	ctx.putImageData(imageDataSmooth, 600, 0);
+}
+};
+
+	
+</script> 
+
+</body>
+</html>
