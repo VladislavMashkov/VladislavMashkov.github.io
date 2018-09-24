@@ -1,0 +1,153 @@
+<HTML>
+<HEAD>
+<STYLE>
+	body {
+		margin: 0;
+	}
+	#lab03 {
+		border-width: 3px;
+		border-color: #000000;
+		border-style: solid; 
+	}
+	.buttons {
+		margin: 30px 0px 0px 500px;
+	}
+</STYLE>
+</HEAD>
+<BODY>
+	<div class= "canvas">
+		<canvas id='lab03' height='500' width='1000' style='border-width: 3px' />
+	</div>
+	<div class = "buttons">
+		<button type="button" id="firstButton" onclick="lineFunction()">Line</button>  
+		<button type="button" id="secondButton" onclick="circleFunction()">Circle</button>  
+	</div>
+<script>
+	var canvas = document.getElementById('lab03');
+	var ctx = canvas.getContext('2d');
+	var buffer=[];
+	
+	function getMousePos(canvas) {
+		return {
+			x: event.clientX - 3,
+			y: event.clientY - 3
+		};
+	}
+
+	var plot = function(x, y) { 
+		if(isFinite(x) && isFinite(y)){
+			setPixel(x,y, plot.color);
+		}
+	};
+ 
+	function setPixel (x,y,c) { 
+		var p = ctx.createImageData(1,1);
+		p.data[0]=c.r;
+		p.data[1]=c.g;
+		p.data[2]=c.b;
+		p.data[3]=c.a;
+		var data = ctx.getImageData(x, y, 1,1).data;
+		if(data[3] <= p.data[3]) 
+			ctx.putImageData(p,x,y);
+	}
+ 
+	function drawLine(x1, y1, x2, y2) {
+	
+		plot.color = {r:0,g:0,b:0,a:255}; 
+
+		var deltaX = Math.abs(x2 - x1);
+		var deltaY = Math.abs(y2 - y1);
+		var signX = x1 < x2 ? 1 : -1;
+		var signY = y1 < y2 ? 1 : -1;
+		var error = deltaX - deltaY;
+		
+		plot(x2, y2);
+		while(x1 != x2 || y1 != y2) 
+		{
+			plot(x1, y1);
+			var error2 = error * 2;
+			if(error2 > -deltaY) 
+			{
+				error -= deltaY;
+				x1 += signX;
+			}
+			if(error2 < deltaX) 
+			{
+				error += deltaX;
+				y1 += signY;
+			}
+		}
+	}
+	
+	function drawCircle(x1, y1, x2, y2) {
+    
+		plot.color = {r:0,g:0,b:0,a:255}; 
+
+		var deltaX = Math.abs(x2 - x1);
+		var deltaY = Math.abs(y2 - y1);
+		var radius = Math.round(Math.sqrt(deltaX * deltaX + deltaY * deltaY));
+		var signX = 0;
+		var signY = radius;
+		var gap = 0;
+		delta = (2 - 2 * radius);
+		while(signY >= 0) {
+			plot(x1 + signX, y1 + signY);
+			plot(x1 + signX, y1 - signY);
+			plot(x1 - signX, y1 - signY);
+			plot(x1 - signX, y1 + signY);
+			gap = 2 * (delta + signY) - 1;
+                if (delta < 0 && gap <= 0)
+                {
+                    signX++;
+                    delta += 2 * signX + 1;
+                    continue;
+                }
+                if (delta > 0 && gap > 0)
+                {
+                    signY--;
+                    delta -= 2 * signY + 1;
+                    continue;
+                }
+                signX++;
+                delta += 2 * (signX - signY);
+                signY--;
+		}
+		
+	}
+	
+	var lineListener = function(event) {
+		var mousePos = getMousePos(canvas);
+		buffer.push(mousePos.x);
+		buffer.push(mousePos.y);
+		if(buffer.length == 4) {
+			drawLine(buffer[0], buffer[1], buffer[2], buffer[3]);
+			do {
+				buffer.pop();
+			} while(buffer.length > 0)
+		}
+	}
+		
+	var circleListener = function(event) {
+		var mousePos = getMousePos(canvas);
+		buffer.push(mousePos.x);
+		buffer.push(mousePos.y);
+		if(buffer.length == 4) {
+			drawCircle(buffer[0], buffer[1], buffer[2], buffer[3]);
+			do {
+				buffer.pop();
+			} while(buffer.length > 0)
+		}
+	}
+	
+	function lineFunction() {
+		canvas.removeEventListener('click', circleListener, false);
+		canvas.addEventListener('click', lineListener, false);
+	}
+	
+	function circleFunction() {
+		canvas.removeEventListener('click', lineListener, false);
+		canvas.addEventListener('click', circleListener, false);
+	}
+</script> 
+</BODY> 
+</HTML>
