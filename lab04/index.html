@@ -1,0 +1,69 @@
+<HTML>
+<BODY>
+
+<canvas id='lab02' height='500' width='1000' style='border-width: 3px' />
+<script>
+var buffer =[];
+var img = new Image();
+img.src = 'img.jpg';
+img.onload = function() {
+  draw(this);
+};
+function draw(img) {
+	var canvas = document.getElementById('lab02');
+    var ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0);
+    img.style.display = 'none';
+	
+    var imageData, ImageRectData, imageSobelData;
+    var data, dataRect, dataSobel; 
+	
+	imageData = ctx.getImageData(0,0,img.width,img.height);
+	ctx.putImageData(grayscale(imageData),0,0);
+		
+    var Sobel = function() {
+		for(var j = 1; j < img.height - 1;) {
+			for(var i = 1; i < img.width - 1;) {
+				ImageRectData = ctx.getImageData(i - 1, j - 1, 3, 3);
+				dataRect = ImageRectData.data;
+				var x = (-1 * dataRect[0] + 1 * dataRect[8] - 2 * dataRect[12] + 2 * dataRect [20] - 1 * dataRect[24] + 1 * dataRect [32]);
+				var y = (1 * dataRect[0] + 2 * dataRect[4] + 1 * dataRect[8] - 1 * dataRect [24] - 2 * dataRect[28] - 1 * dataRect [32]);
+				var color = Math.sqrt(x * x + y * y);
+				
+				buffer.push(color);
+				buffer.push(color);
+				buffer.push(color);
+				buffer.push(255);
+				console.log("1");
+			}
+			i += 1;
+		}
+		j += 1;
+	};
+
+	Sobel();
+	
+	imageSobelData = ctx.getImageData(0,0,img.width,img.height);
+	dataSobel = imageSobelData.data;
+	for(k = 0; k < dataSobel.length; k++) {
+		dataSobel[k] = buffer[k];
+	}
+	ctx.putImageData(imageSobelData, 600, 0);
+	ctx.drawImage(img, 0, 0);
+}
+
+function grayscale(grayData)
+		{
+			for(let i = 0; i < grayData.data.length; i+=4)
+			{
+				var grayscale = Math.floor((grayData.data[i] + grayData.data[i+1] + grayData.data[i+2])/3);
+				grayData.data[i] = grayscale;
+				grayData.data[i+1] = grayscale;
+				grayData.data[i+2] = grayscale;
+	    	}
+	    	return grayData;
+		}
+	
+</script> 
+</BODY> 
+</HTML>
