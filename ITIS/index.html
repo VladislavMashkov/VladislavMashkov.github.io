@@ -1,0 +1,330 @@
+<HTML>
+<HEAD>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<STYLE>
+	body{
+		margin: 20px;
+	}
+	#canvasBox{
+		border-width: 3px;
+		border-color: #000000;
+		border-style: solid;
+	}
+	.buttons {
+		margin: 30px 0px 0px 500px;
+	}
+	.container div{display:inline-block}
+	.box div{display:block}
+</STYLE>
+</HEAD>
+<BODY>
+	<!--Разметка блоков, контейнеров, кнопок и холстов(сanvas)-->
+	<div class="container">
+		<div class="box">
+			<div id = "canvasBox"><canvas id='Image1' width ="400px" height="400px"></canvas></div>
+			<div>
+				<button type="button" onclick="setImageFunction(1)">Задать</button>   
+			</div>
+		</div>
+		<div class="box">
+			<div id = "canvasBox"><canvas id='Image2' width ="400px" height="400px"></canvas></div>
+			<div>
+				<button type="button" onclick="setImageFunction(2)">Задать</button>  
+			</div>
+		</div>
+		<div class="box">
+			<div id = "canvasBox"><canvas id='Image3' width ="400px" height="400px"></canvas></div>
+			<div>
+				<button type="button" onclick="setImageFunction(3)">Задать</button>
+				<button type="button" onclick="putImagesFunction(0)">Предустановка</button> 
+				<button type="button" onclick="saveImagesFunction()">Сохранить</button>  
+			</div>
+		</div>
+
+	</div>
+	<div class="container">
+		<div class="box">
+			<div id = "canvasBox"><canvas id='Image4' width ="400px" height="400px"></canvas></div>
+			<div>
+				<button type="button" onclick="setImageFunction(4)">Задать</button> 
+				<button type="button" onclick="putImagesFunction(1)">D</button>
+				<button type="button" onclick="putImagesFunction(2)">E</button>
+				<button type="button" onclick="putImagesFunction(3)">X</button>
+				<button type="button" onclick="saveFunctionImage4()">Сохранить</button>  
+			</div>
+		</div>
+		<div class="box">
+			<div id = "canvasBox"><canvas id='Image5' width ="400px" height="400px"></canvas></div>
+			<div>
+				<button type="button" onclick="correctImageFunction()">Распознать</button>  
+			</div>
+		</div>
+	</div>
+	
+	
+<script>
+	class Neuron {
+		constructor() {
+		}
+		<!--Сеттеры для записи в класс векторизированных матриц эталонных запоминаемых образов-->
+		<!--vectorImage1 - векторизированная матрица 1 эталонного образа-->
+		<!--vectorImage2 - векторизированная матрица 2 эталонного образа-->
+		<!--vectorImage3 - векторизированная матрица 3 эталонного образа-->
+		<!--vectorImage4 - векторизированная матрица распознаваемого образа-->
+		<!--weightMatrix - матрица весов обратных связей-->
+		set dataOfImage1(newData) {
+			this.vectorImage1 = newData;
+		}
+		
+		set dataOfImage2(newData) {
+			this.vectorImage2 = newData;
+		}
+		
+		set dataOfImage3(newData) {
+			this.vectorImage3 = newData;
+		}
+		<!--Сеттер для записи в класс векторизированной матрицы разпознаваемого входного образа-->
+		set dataOfImage4(newData) {
+			this.vectorImage4 = newData;
+		}
+		<!--Функция для рассчета матрицы весов обратных связей-->
+		countWeightMatrix() {
+			this.weightMatrix = new Array(400);
+			for (var rows = 0; rows < 400; rows++) {
+				this.weightMatrix[rows] = new Array(400);
+				for (var cols = 0; cols < 400; cols++) {
+					this.weightMatrix[rows][cols] = 0;
+				}
+			}
+			for (var rows = 0; rows < 400; ++rows) {
+				for (var cols = 0; cols < 400; ++cols) {
+					this.weightMatrix[rows][cols] += this.vectorImage1[cols]*this.vectorImage1[rows];
+					this.weightMatrix[rows][cols] += this.vectorImage2[cols]*this.vectorImage2[rows];
+					this.weightMatrix[rows][cols] += this.vectorImage3[cols]*this.vectorImage3[rows];
+					if(rows == cols) {
+						this.weightMatrix[rows][cols] = 0;
+					}
+				}
+			}
+			return this.weightMatrix;
+		}
+		<!--Функция получения восстановленного образа-->
+		getCorrectImage() {
+			this.correctImage = this.vectorImage4;
+			for (var rows = 0; rows < 400; rows++) {
+				this.net = 0;
+				for (var cols = 0; cols < 400; cols++) {
+					this.net += this.vectorImage4[cols]*this.weightMatrix[rows][cols];	
+				}
+				if (this.net > 0) {this.correctImage[rows] = 1;}
+				if (this.net < 0) {this.correctImage[rows] = -1;}
+			}
+			this.vectorImage4 = this.correctImage;
+		}
+	};
+	<!--Первичная инициализация при запуске html-страницы(создание объекта класса)-->
+	let neuron = new Neuron();
+	
+	var drawlistener, canvas, ctx;
+	canvas = document.getElementById('Image1');
+	ctx = canvas.getContext('2d');
+	drawlistener = function(event) {drawFunction(canvas, event, ctx);}
+	canvas.addEventListener('click', drawlistener, false);
+ 	<!--Режим ручного рисования(активируется при нажатии кнопки "Задать" под одним их холстов canvas)-->
+	<!--Функция, возвращающая координаты курсора на холсте(canvas)-->
+	function getMousePos(canvas, evt) {
+		var rect = canvas.getBoundingClientRect();
+		return {
+			x: evt.clientX - rect.left,
+			y: evt.clientY - rect.top
+		};
+	}
+	<!--Функция ручной отрисовки ячеек размером 20x20 пикселей на заданном холсте(canvas)-->
+	function drawFunction(canvas, event, ctx) {
+		var mousePos = getMousePos(canvas, event);
+		var x = 20 * Math.floor(mousePos.x / 20);
+		var y = 20 * Math.floor(mousePos.y / 20);
+		ImagePixelData = ctx.getImageData(mousePos.x, mousePos.y, 1, 1);
+		dataPixel = ImagePixelData.data;
+		if ((dataPixel[1] == 0) && (dataPixel[2] == 255)) {
+			ctx.fillStyle = "white";
+			ctx.fillRect(x, y, 20, 20);
+		}
+		else {
+			ctx.fillStyle = "blue";
+			ctx.fillRect(x, y, 20, 20);
+		}
+	}
+	<!--Функция, которая в зависимости от нажатой кнопки активирует режим ручного рисования для определенного холста canvas-->
+	function setImageFunction(numberOfImage) {
+		canvas.removeEventListener('click', drawlistener, false);
+		if(numberOfImage == 1) {canvas = document.getElementById('Image1');;}
+		if(numberOfImage == 2) {canvas = document.getElementById('Image2');;}
+		if(numberOfImage == 3) {canvas = document.getElementById('Image3');;}
+		if(numberOfImage == 4) {canvas = document.getElementById('Image4');;}
+		ctx = canvas.getContext('2d');
+		drawlistener = function(event) {drawFunction(canvas, event, ctx);}
+		canvas.addEventListener('click', drawlistener, false);
+	}
+	
+	<!--Режим предустановки(активируется при нажатии кнопок "Предустановка", "D", "E", "X")-->
+	<!--Функция автоматической отрисовки ячеек размером 20x20 пикселей на заданном холсте(canvas) в зависимости от поданной матрицы образа-->
+	function putImageFunction(dataImage, canvas, ctx) {
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, 400, 400);
+		for(var rows = 0; rows < 20; rows++) {
+			for(var cols = 0; cols < 20; cols++) {
+				if(dataImage[rows][cols] == 1){
+					ctx.fillStyle = "blue";
+					ctx.fillRect(cols*20, rows*20, 20, 20);
+				}
+			}
+		}
+	}
+	<!--Функция, в которой хранятся матрицы эталонных образцов, в зависимости от нажатой кнопки предустанавливает эталонные и распознаваемый образы на холст canvas-->
+	function putImagesFunction(numberOfImage) {
+		var Image1 = [[-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1]]
+		var Image2 = [[-1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1]];
+		var Image3 = [[-1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1],
+					  [-1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, -1, 1, 1, 1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1],
+					  [-1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1],
+					  [-1, -1, -1, 1, 1, 1, -1, -1, -1, -1, -1, -1, -1, -1, 1, 1, 1, -1, -1, -1]];
+		
+		if(numberOfImage == 0) {
+			canvas.removeEventListener('click', drawlistener, false);
+			canvas = document.getElementById('Image1');
+			ctx = canvas.getContext('2d');
+			putImageFunction(Image1, canvas, ctx);
+			canvas = document.getElementById('Image2');
+			ctx = canvas.getContext('2d');
+			putImageFunction(Image2, canvas, ctx);
+			canvas = document.getElementById('Image3');
+			ctx = canvas.getContext('2d');
+			putImageFunction(Image3, canvas, ctx);
+		}
+		
+		canvas = document.getElementById('Image4');
+		ctx = canvas.getContext('2d');
+		if(numberOfImage == 1) {putImageFunction(Image1, canvas, ctx);}
+		if(numberOfImage == 2) {putImageFunction(Image2, canvas, ctx);}
+		if(numberOfImage == 3) {putImageFunction(Image3, canvas, ctx);}
+	}
+	<!--Режим сохранения(активируется при нажатии кнопок "Сохранить")-->
+	<!--Функция сохранения нарисованного образа путем прохода по холсту и преобразования графического изображения в рабочие вектора-->
+	function saveFunction(canvas, ctx) {
+		var dataImage = [];
+		for(var j = 1; j < canvas.width;) {
+			for(var i = 1; i < canvas.height;) {
+				ImagePixelData = ctx.getImageData(j, i, 1, 1);
+				dataPixel = ImagePixelData.data;
+				if ((dataPixel[1] == 0) && (dataPixel[2] == 255)) {
+					dataImage.push(1);
+				}
+				else {
+					dataImage.push(-1);
+				}
+				i += 20;
+			}
+			j += 20;
+		}
+		return dataImage;
+	}
+	<!--Функция, которая проходится по холстам canvas, вызывая функцию сохранения для эталонных образов-->
+	function saveImagesFunction() {
+		canvas.removeEventListener('click', drawlistener, false);
+		canvas = document.getElementById('Image1');
+		ctx = canvas.getContext('2d');
+		neuron.dataOfImage1 = saveFunction(canvas, ctx);
+		canvas = document.getElementById('Image2');
+		ctx = canvas.getContext('2d');
+		neuron.dataOfImage2 = saveFunction(canvas, ctx);
+		canvas = document.getElementById('Image3');
+		ctx = canvas.getContext('2d');
+		neuron.dataOfImage3 = saveFunction(canvas, ctx);
+	}
+	
+	<!--Функция, которая вызывает функцию сохранения для холста, где задается распознаваемый образ-->
+	function saveFunctionImage4() {
+		canvas.removeEventListener('click', drawlistener, false);
+		canvas = document.getElementById('Image4');
+		ctx = canvas.getContext('2d');
+		neuron.dataOfImage4 = saveFunction(canvas, ctx);
+	}
+	<!--Алгоритм работы распознавания образа(вызов функции расчеты матрицы весов обратных связей, распознавание образа)-->
+	function correctImageFunction() {
+		canvas.removeEventListener('click', drawlistener, false);
+		neuron.countWeightMatrix();
+		neuron.getCorrectImage();
+		var Image = new Array(20);
+		for (var i = 0; i < 20; i++) {
+			Image[i] = new Array(20);
+		}
+		for (var cols = 0; cols < 20; cols++) {
+			for (var rows = 0; rows < 20; rows++) {
+				Image[rows][cols] = neuron.correctImage[rows+cols*20];
+			}
+		}
+		<!--Отрисовка расспознанного образа на холсте canvas-->
+		canvas = document.getElementById('Image5');
+		ctx = canvas.getContext('2d');
+		ctx.fillStyle = "white";
+		ctx.fillRect(0, 0, 400, 400);
+		putImageFunction(Image, canvas, ctx);
+	}
+</script> 
+</BODY> 
+</HTML>
