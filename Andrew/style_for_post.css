@@ -1,0 +1,168 @@
+body {
+	margin:0;
+	padding:0;
+}
+.img {
+	border:2px solid black;
+}
+.content {
+	width:55%;
+	margin:auto;
+	display:block;
+}
+
+.content h1{
+	font-family: 'Montserrat Alternates', sans-serif;
+	text-decoration:underline;
+	font-size:40px;
+}
+
+.content p{
+	font-size:27px;
+	font-family: 'Montserrat Alternates', sans-serif;
+	text-align:justify;
+}
+.img_post {
+	width:640px;
+	height:360px;
+	background-image:url(https://www.worldanvil.com/uploads/images/9cb1c8d862a0e7144946b24040fbd11a.png);
+	margin:auto;
+	box-shadow:0px 0px 5px 0px #32e0c4;
+}
+
+.content img {
+	margin:auto;
+}
+
+.header {
+	width:100%;
+	height:12vh;
+	top:0;
+	left:0;
+	right:0;
+	position:relative;
+	z-index:1000;
+	min-height:100px;
+	border-bottom:1px solid #aaaaaa;
+	background: rgb(131,58,180);
+	background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+}
+
+.header_inner {
+	display:flex;
+	font-size:30px;
+	justify-content:space-between;
+	align-items:center;
+	height:100%;
+}
+.header_logo {
+	font-size:30px;
+	font-weight:700;
+	color:#000;
+	width:120px;
+	height:120px;
+	margin-left:5%;
+}
+.nav {
+	font-size:17px;
+	text-transform:uppercase;
+}
+.nav_link {
+	display:inline-block;
+	vertical-align:top;
+	margin:0 15px;
+	position:relative;
+	text-decoration:none;
+	color:white;
+	transition:color .1s linear;
+	z-index:1;
+	transition: 0.1s linear;
+	font-family: 'Montserrat Alternates', sans-serif;
+}
+.nav_link:after{
+	content:"";
+	height:10px;
+	display:block;
+	position:absolute;
+	background:linear-gradient(to right, red, orange, yellow, green, cyan, blue, violet);
+  	background-size:100% 100%;
+  	width:50px;
+  	top:0;
+  	left:0;
+  	z-index:6;
+  	transition:width 0.2s linear;
+  	opacity:0;
+
+}
+.nav_link:hover{
+	color:blue;
+	border-bottom:1px solid blue;
+  	
+}
+.header_logo_image {
+	width:75%;
+	height:75%;
+}
+
+.return_button {
+	position:fixed;
+	top:100px;
+	height:100vh;
+	width:10%;
+	z-index: 0;
+	background-color:rgba(170,170,170, 0.1);
+	padding-top:70px;
+	transition:0.1s linear;
+}
+.return_button p {
+	font-size:30px;
+	text-align:center;
+	color:grey;
+}
+
+.return_button:hover {
+	background-color:rgba(170,170,170, 0.3)
+}
+
+.footer {
+	width:100%;
+	height:100px;
+	background: linear-gradient(90deg, rgba(131,58,180,1) 0%, rgba(253,29,29,1) 50%, rgba(252,176,69,1) 100%);
+	background-size:cover;
+	box-shadow: inset 0 0 10px 5px rgba(0,0,0,0.5);
+	display:flex;
+	justify-content:center;
+	align-items:center;
+	min-height:200px;
+	position:relative;
+	padding:auto;
+	min-width:1200px;
+	z-index:5;
+}
+
+.info {
+	width:40%;
+	display:flex;
+	flex-wrap:wrap;
+	color:white;
+	font-family: 'Montserrat Alternates', sans-serif;
+	font-size:21px;
+}
+
+.declaration {
+	width:100%;
+}
+
+.developer-info {
+	width:50%;
+}
+.developer-info a{
+	color:white;
+}
+.developer-info a:hover{
+	color:blue;
+}
+
+.footer_icon {
+	width:20px;
+}
