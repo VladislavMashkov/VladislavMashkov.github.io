@@ -1,0 +1,235 @@
+* {
+    font-family: 'Tenor Sans', sans-serif;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+a:visited {
+    color: #262d24;
+}
+
+a {
+    text-decoration: none;
+    color: #262d24;
+    transition: 0.1s ease-in;
+}
+
+a:hover {
+    color: #d03a53;
+}
+
+
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-top:12px;
+}
+
+nav {
+    max-width: 333px;
+    width: 35vw;
+    padding-left: 12px;
+}
+
+.navigation {
+    padding: 0;
+    position: relative;
+    font-size: 16px;
+    display: flex;
+    gap: 12px;
+    list-style-type: none;
+}
+
+.section__content {
+    padding: 0 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.section__title {
+    font-size: 32px;
+}
+.wedding-names {
+    width: 40%;
+    position: absolute;
+    pointer-events: none;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    color: rgb(20, 12, 64);
+    line-height: 116%;
+    overflow-wrap: break-word;
+    text-align: center;
+    margin: 0px auto;
+    font-weight: 400;
+}
+
+.date-section {
+    position: relative;
+}
+
+.image-container {
+    position: relative;
+    overflow: hidden;
+    max-height: calc(100vh - 50px);
+}
+
+.paranja {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    z-index: 1;
+    width: 100%;
+    height: calc(100% - 4px);
+    pointer-events: none;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+.image {
+    width: 100%;
+}
+
+.date {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 2;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    -webkit-box-align: center;
+    align-items: center;
+    font-size: 172px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.star {
+    display: flex;
+}
+
+.where-section .section__description {
+    text-align: center;
+}
+
+#map {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+
+.map-container {
+    position:relative;
+    height:400px;
+}
+
+.answers {
+    display: flex;
+    gap:12px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.answer {
+    width: 49%;
+}
+
+.answer__title {
+    margin-bottom: 12px;
+}
+
+.ending-section {
+    background-color: #CCB8A8;
+}
+
+.ending-section .section__content {
+    margin: 0;
+    padding: 20px;
+}
+
+.section__title-ending {
+    text-align: center;
+    color: white;
+}
+
+@media (max-width: 1199.98px) {
+
+}
+
+@media (max-width: 991.98px) {
+    header {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    nav {
+        width: 100%;
+        max-width: 212px;
+        padding-left: 0;
+    }
+    .navigation {
+        gap: 10px;
+        font-size: 20px;
+    }
+    .wedding-names {
+        position: relative;
+        width: 100%;
+    }
+
+    .date {
+        font-size: 100px;
+    }
+}
+
+@media (max-width: 767.98px) {
+    .answer {
+        width: 48%;
+    }
+}
+
+@media (max-width: 575.98px) {
+    header {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+    nav {
+        width: 100%;
+        max-width: 180px;
+    }
+    .navigation {
+        gap: 0px;
+        font-size: 16px;
+        justify-content: space-between;
+    }
+    .wedding-names {
+        position: relative;
+        width: 100%;
+        transform: none;
+        top:0;
+        left:0;
+    }
+    .date {
+        font-size: 60px;
+    }
+    .section__content {
+        padding: 0 20px;
+    }
+    .answer {
+        width: 100%;
+    }
+}
